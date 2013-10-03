@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name="tastypie-mongodb-resource",
-    version="0.0.2",
+    version="0.0.3",
     author="Fatih Erikli",
     author_email="fatiherikli@gmail.com",
     description=("Tastypie MongoDB Resource"),
