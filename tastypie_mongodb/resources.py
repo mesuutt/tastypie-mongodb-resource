@@ -32,12 +32,16 @@ class MongoDBResource(Resource):
     """
     A base resource that allows to make CRUD operations for mongodb.
     """
+    def __init__(self, database=None):
+        if not database:
+            self.database = db
+
     def get_collection(self):
         """
         Encapsulates collection name.
         """
         try:
-            return db[self._meta.collection]
+            return self.database[self._meta.collection]
         except AttributeError:
             raise ImproperlyConfigured("Define a collection in your resource.")
 
