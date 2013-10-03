@@ -20,12 +20,12 @@ setup(
     keywords="tastypie rest api module resource mongodb",
     url="https://github.com/fatiherikli/tastypie-mongodb-resource",
     install_requires = [
-        'Django>=1.4'
+        'Django>=1.4',
         'django-tastypie>=0.10',
-        'pymongo>=2.6'
+        'pymongo>=2.6',
     ],
     packages=[
-        'tastypie_mongodb'
+        'tastypie_mongodb',
     ],
     long_description=read('README.md'),
     classifiers=[
@@ -35,6 +35,6 @@ setup(
         "Intended Audience :: Developers",
         "Natural Language :: English",
         "Programming Language :: Python",
-        "Topic :: Internet"
+        "Topic :: Internet",
     ],
 )
