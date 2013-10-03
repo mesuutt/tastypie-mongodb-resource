@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from bson import ObjectId
 from pymongo import MongoClient, Database
 
@@ -12,7 +14,7 @@ from tastypie.resources import Resource
 db = Database(MongoClient(
     host=getattr(settings, "MONGODB_HOST", None),
     port=getattr(settings, "MONGODB_PORT", None)
-), settings.MONGODB_DATABASE])
+), settings.MONGODB_DATABASE)
 
 username = getattr(settings, "MONGODB_USERNAME", None)
 password = getattr(settings, "MONGODB_PASSWORD", None)
@@ -20,9 +22,11 @@ password = getattr(settings, "MONGODB_PASSWORD", None)
 if username and password:
     db.authenticate(username, password)
 
+
 class Document(dict):
     # dictionary-like object for mongodb documents.
     __getattr__ = dict.get
+
 
 class MongoDBResource(Resource):
     """
@@ -73,7 +77,7 @@ class MongoDBResource(Resource):
         """
         Removes single document from collection
         """
-        self.get_collection().remove({ "_id": ObjectId(kwargs.get("pk")) })
+        self.get_collection().remove({"_id": ObjectId(kwargs.get("pk"))})
 
     def obj_delete_list(self, request=None, **kwargs):
         """
