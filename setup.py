@@ -27,7 +27,7 @@ setup(
     packages=[
         'tastypie_mongodb',
     ],
-    long_description=read('README.md'),
+    long_description=read('README.rst'),
     classifiers=[
         "Environment :: Console",
         "Environment :: Web Environment",
