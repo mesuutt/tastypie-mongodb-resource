@@ -12,7 +12,7 @@ from tastypie.resources import Resource
 db = Database(MongoClient(
     host=getattr(settings, "MONGODB_HOST", None),
     port=getattr(settings, "MONGODB_PORT", None)
-), settings.MONGODB_DATABASE])
+), settings.MONGODB_DATABASE)
 
 username = getattr(settings, "MONGODB_USERNAME", None)
 password = getattr(settings, "MONGODB_PASSWORD", None)
