@@ -38,5 +38,6 @@ Example of Usage
 Contributors
 ------------
 Ferrix Hovi (<https://github.com/ferrix>)
+Alper Kanat (<https://github.com/tunix>)
 
 
