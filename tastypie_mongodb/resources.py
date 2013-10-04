@@ -24,7 +24,7 @@ class MongoDBResource(Resource):
         """
         Maps mongodb documents to Document class.
         """
-        return map(self.get_object_class(), self.get_collection().find())
+        return list(map(self.get_object_class(), self.get_collection().find()))
 
     def obj_get(self, request=None, **kwargs):
         """
