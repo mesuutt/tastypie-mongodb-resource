@@ -13,14 +13,14 @@ def read(fname):
 
 setup(
     name="tastypie-mongodb-resource",
-    version="0.0.3",
+    version="0.0.4",
     author="Fatih Erikli",
     author_email="fatiherikli@gmail.com",
     description=("Tastypie MongoDB Resource"),
     keywords="tastypie rest api module resource mongodb",
     url="https://github.com/fatiherikli/tastypie-mongodb-resource",
     install_requires = [
-        'Django>=1.4',
+        'Django>=1.5',
         'django-tastypie>=0.10',
         'pymongo>=2.6',
     ],

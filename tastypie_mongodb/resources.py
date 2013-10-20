@@ -1,87 +1,64 @@
 # coding: utf-8
 
 from bson import ObjectId
-from pymongo import MongoClient, Database
-
-from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
-from django.conf import settings
 
 from tastypie.bundle import Bundle
 from tastypie.resources import Resource
-
-
-db = Database(MongoClient(
-    host=getattr(settings, "MONGODB_HOST", None),
-    port=getattr(settings, "MONGODB_PORT", None)
-), settings.MONGODB_DATABASE)
-
-username = getattr(settings, "MONGODB_USERNAME", None)
-password = getattr(settings, "MONGODB_PASSWORD", None)
-
-if username and password:
-    db.authenticate(username, password)
-
-
-class Document(dict):
-    # dictionary-like object for mongodb documents.
-    __getattr__ = dict.get
 
 
 class MongoDBResource(Resource):
     """
     A base resource that allows to make CRUD operations for mongodb.
     """
-    def __init__(self, database=None):
-        if not database:
-            self.database = db
+    def get_object_class(self):
+        return self._meta.object_class
 
     def get_collection(self):
         """
         Encapsulates collection name.
         """
-        try:
-            return self.database[self._meta.collection]
-        except AttributeError:
-            raise ImproperlyConfigured("Define a collection in your resource.")
+        raise NotImplementedError("You should implement get_collection method.")
 
     def obj_get_list(self, request=None, **kwargs):
         """
         Maps mongodb documents to Document class.
         """
-        return map(Document, self.get_collection().find())
+        return list(map(self.get_object_class(), self.get_collection().find()))
 
     def obj_get(self, request=None, **kwargs):
         """
         Returns mongodb document from provided id.
         """
-        return Document(self.get_collection().find_one({
-            "_id": ObjectId(kwargs.get("pk"))
-        }))
+        return self.get_object_class()(
+            self.get_collection().find_one({
+                "_id": ObjectId(kwargs.get("pk"))
+            })
+        )
 
     def obj_create(self, bundle, **kwargs):
         """
         Creates mongodb document from POST data.
         """
-        self.get_collection().insert(bundle.data)
+        bundle.data.update(kwargs)
+        bundle.obj = self.get_collection().insert(bundle.data)
         return bundle
 
     def obj_update(self, bundle, request=None, **kwargs):
         """
         Updates mongodb document.
         """
-        self.get_collection().update({
-            "_id": ObjectId(kwargs.get("pk"))
-        }, {
-            "$set": bundle.data
-        })
+        self.get_collection().update(
+            {"_id": ObjectId(kwargs.get("pk"))},
+            {"$set": bundle.data}
+        )
         return bundle
 
     def obj_delete(self, request=None, **kwargs):
         """
         Removes single document from collection
         """
-        self.get_collection().remove({"_id": ObjectId(kwargs.get("pk"))})
+        parameters = {"_id": ObjectId(kwargs.get("pk"))}
+        self.get_collection().remove(parameters)
 
     def obj_delete_list(self, request=None, **kwargs):
         """
@@ -89,15 +66,22 @@ class MongoDBResource(Resource):
         """
         self.get_collection().remove()
 
-    def get_resource_uri(self, item):
+    def detail_uri_kwargs(self, bundle_or_obj):
         """
-        Returns resource URI for bundle or object.
+        Given a ``Bundle`` or an object, it returns the extra kwargs needed
+        to generate a detail URI.
+
+        By default, it uses the model's ``pk`` in order to create the URI.
         """
-        if isinstance(item, Bundle):
-            pk = item.obj._id
+        detail_uri_name = getattr(self._meta, 'detail_uri_name', 'pk')
+        kwargs = {}
+
+        if isinstance(bundle_or_obj, Bundle):
+            if isinstance(bundle_or_obj.obj, ObjectId):
+                kwargs[detail_uri_name] = str(bundle_or_obj.obj)
+            else:
+                kwargs[detail_uri_name] = getattr(bundle_or_obj.obj, detail_uri_name)
         else:
-            pk = item._id
-        return reverse("api_dispatch_detail", kwargs={
-            "resource_name": self._meta.resource_name,
-            "pk": pk
-        })
+            kwargs[detail_uri_name] = getattr(bundle_or_obj, detail_uri_name)
+
+        return kwargs
