@@ -2,6 +2,7 @@
 
 from bson import ObjectId
 
+from django.core.exceptions import ObjectDoesNotExist
 from tastypie.bundle import Bundle
 from tastypie.resources import Resource
 
@@ -30,11 +31,14 @@ class MongoDBResource(Resource):
         """
         Returns mongodb document from provided id.
         """
-        return self.get_object_class()(
-            self.get_collection().find_one({
-                "_id": ObjectId(kwargs.get("pk"))
-            })
-        )
+        obj = self.get_collection().find_one({
+            "_id": ObjectId(kwargs.get("pk"))
+        })
+
+        if not obj:
+            raise ObjectDoesNotExist
+
+        return self.get_object_class()(obj)
 
     def obj_create(self, bundle, **kwargs):
         """
