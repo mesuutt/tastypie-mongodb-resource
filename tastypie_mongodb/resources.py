@@ -20,6 +20,9 @@ class MongoDBResource(Resource):
         """
         raise NotImplementedError("You should implement get_collection method.")
 
+    def get_object_list(self, request):
+        return self.obj_get_list(request)
+
     def obj_get_list(self, request=None, **kwargs):
         """
         Maps mongodb documents to Document class.
