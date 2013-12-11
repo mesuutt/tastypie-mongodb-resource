@@ -21,13 +21,29 @@ class MongoDBResource(Resource):
         raise NotImplementedError("You should implement get_collection method.")
 
     def get_object_list(self, request):
-        return self.obj_get_list(request)
+        bundle = self.build_bundle(request=request)
+        return self.obj_get_list(bundle)
 
-    def obj_get_list(self, request=None, **kwargs):
+    def obj_get_list(self, bundle, **kwargs):
         """
         Maps mongodb documents to Document class.
         """
-        return list(map(self.get_object_class(), self.get_collection().find()))
+        filters = {}
+
+        if hasattr(bundle.request, 'GET'):
+            filters = bundle.request.GET.copy()
+
+        # Update with the provided kwargs.
+        filters.update(kwargs)
+        applicable_filters = self.build_filters(filters=filters)
+
+        return self.apply_filters(bundle.request, applicable_filters)
+
+    def apply_filters(self, request, applicable_filters):
+        return list(map(self.get_object_class(), self.get_collection().find(applicable_filters)))
+
+    def build_filters(self, filters=None):
+        return filters
 
     def obj_get(self, request=None, **kwargs):
         """
