@@ -5,6 +5,7 @@ from bson import ObjectId
 from tastypie.bundle import Bundle
 from tastypie.resources import Resource
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import QueryDict
 
 
 class MongoDBResource(Resource):
@@ -24,8 +25,11 @@ class MongoDBResource(Resource):
     def apply_filters(self, request, applicable_filters):
         return list(map(self.get_object_class(), self.get_collection().find(applicable_filters)))
 
-    def build_filters(self, **kwargs):
-        return kwargs
+    def build_filters(self, filters):
+        if isinstance(filters, QueryDict):
+            return filters.dict()
+
+        return filters
 
     def get_object_list(self, request):
         bundle = self.build_bundle(request=request)
