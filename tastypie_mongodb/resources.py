@@ -24,16 +24,26 @@ class MongoDBResource(Resource):
     def get_object_list(self, request):
         return self.obj_get_list(request)
 
-    def obj_get_list(self, request=None, **kwargs):
+    def obj_get_list(self, bundle, **kwargs):
         """
-        Maps mongodb documents to Document class.
+        Maps mongodb documents to resource's object class.
         """
-        return list(map(self.get_object_class(), self.get_collection().find()))
 
-    def obj_get(self, request=None, **kwargs):
+        db = self.get_collection()
+        result = []
+
+        self.authorized_read_list(result, bundle)
+
+        for doc in db.find():
+            result.append(self.get_object_class()(doc))
+
+        return result
+
+    def obj_get(self, bundle, **kwargs):
         """
         Returns mongodb document from provided id.
         """
+
         obj = self.get_collection().find_one({
             "_id": ObjectId(kwargs.get("pk"))
         })
@@ -51,7 +61,7 @@ class MongoDBResource(Resource):
         bundle.obj = self.get_collection().insert(bundle.data)
         return bundle
 
-    def obj_update(self, bundle, request=None, **kwargs):
+    def obj_update(self, bundle, **kwargs):
         """
         Updates mongodb document.
         """
@@ -61,14 +71,14 @@ class MongoDBResource(Resource):
         )
         return bundle
 
-    def obj_delete(self, request=None, **kwargs):
+    def obj_delete(self, bundle, **kwargs):
         """
         Removes single document from collection
         """
         parameters = {"_id": ObjectId(kwargs.get("pk"))}
         self.get_collection().remove(parameters)
 
-    def obj_delete_list(self, request=None, **kwargs):
+    def obj_delete_list(self, bundle, **kwargs):
         """
         Removes all documents from collection
         """
