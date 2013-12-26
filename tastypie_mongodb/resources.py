@@ -80,9 +80,10 @@ class MongoDBResource(Resource):
 
         self.authorized_create_detail(bundle.data, bundle)
 
-        bundle.obj = self.get_collection().insert(bundle.data)
+        oid = self.get_collection().insert(bundle.data)
+        obj = self._meta.object_class.objects.get(_id=ObjectId(oid))
 
-        return bundle
+        return self.build_bundle(request=bundle.request, data=bundle.data, obj=obj)
 
     def obj_update(self, bundle, **kwargs):
         """
