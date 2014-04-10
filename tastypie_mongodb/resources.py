@@ -81,7 +81,7 @@ class MongoDBResource(Resource):
         self.authorized_create_detail(bundle.data, bundle)
 
         oid = self.get_collection().insert(bundle.data)
-        obj = self._meta.object_class.objects.get(_id=ObjectId(oid))
+        obj = self._meta.object_class.objects.get(_id=oid)
 
         return self.build_bundle(request=bundle.request, data=bundle.data, obj=obj)
 
